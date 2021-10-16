@@ -3,27 +3,21 @@
 </p>
 
 ## The Challenge
-1. Read about the challenge and register at [#100DaysOfCloud.com](https://100DaysOfCloud.com)
-2. Join the [Discord Channel](https://discord.gg/c6Db8nY)
-3. Copy the [100DaysOfCloud/100DaysOfCloud Journey Template](https://github.com/100DaysOfCloud/100DaysOfCloud/generate)
-4. Use the [Micro](Templates/000-DAY-ARTICLE-MICRO-TEMPLATE.md), [Short](Templates/001-DAY-ARTICLE-SHORT-TEMPLATE.md) or [Long](Templates/002-DAY-ARTICLE-LONG-TEMPLATE.md) Day Journey Template and document your day-to-day progress.
-5. Update your main README to link back to your Day Journey article
-4. If you need ideas go to [#100DaysOfCloudIdeas](https://github.com/100DaysOfCloud/100DaysOfCloudIdeas)
 
-## How to use this template:
-Fill in your details where you see this icon ✍️
-We have provided a sample Day Journey entry staring at 0. You can delete this example.
+## [✍️ Rahul Bagal]'
 
-## [✍️ Your Name]'s Cloud Journey
+[✍️ “I am in Third  year of studying Bachleors Of Engineering Pune University.
 
-[✍️ Introduce yourself]
+I have always found that I express myself better with my cloud Skilss and I want to pursue a career in a field that won’t just feel like a job but where I will actually have job satisfaction as well.
 
-[✍️ Tell us why you started this challenge]
+I have heard many great things about your esteemed organization and I am sure I’ll be able to live up to your vision and gain valuable insights from the team as well if given the chance.]
 
-[✍️ Tell us where you want to be at the end of the challenge]
+[✍️ I Have Attennded Kubecon 2021 .I liked the Cloud technology ]
 
-- [✍️ Link to your Twitter](https://twitter.com/username)
-- [✍️ Link to your LinkedIn](https://www.linkedin.com/in/username)
+[✍️ I want To be the master of the kubernetes after these 100 days]
+
+- [✍️ Link to your Twitter](https://twitter.com/RahulBa90563795
+- [✍️ Link to your LinkedIn](https://www.linkedin.com/in/rahul-bagal-258796160/)
 
 ## Stepping out the door
 
