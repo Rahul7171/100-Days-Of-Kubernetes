@@ -1,52 +1,87 @@
-**Add a cover photo like:**
-![placeholder image](https://via.placeholder.com/1200x600)
+# What is Kubernetes?
+## _An open-source container Orchestration Framework
 
-# New post title here
+At its root, it manages containers — to manage applications that are made of of containers- physical machines, virtual machines, hybrid environments
 
-## Introduction
+According to the [kubernetes.io](https://kubernetes.io/) website, Kubernetes is:
 
-✍️ (Why) Explain in one or two sentences why you choose to do this project or cloud topic for your day's study.
+*"an open-source system for automating deployment, scaling, and management of containerized applications"*.
+# **What problems does it solve**
+- Following the trend from Monolithic to Microservices — traditionally, an application would be a Monolithic application — which requires the hardware to scale with the application. In comparison, Kubernetes deploys a large number of small web servers.
+- Containers are the perfect host for small self-contained applications
+- Applications comprised of 100s of containers — managing those with scripts can be really difficult and even impossible
+- Kubernetes helps us with the following: connecting containers across multiple hosts, scaling them, deploying applications without downtime, and service discovery among several other aspects
+The benefits of splitting up your application from Monolithic into Microservices is that they are easier to maintain. For instance:
 
-## Prerequisite
+Instead of a large Apache web server with many httpd daemons responding to page requests, there would be many nginx servers, each responding.
 
-✍️ (What) Explain in one or two sentences the base knowledge a reader would need before describing the the details of the cloud service or topic.
+Additionally, it allows us to separate matters of concerns within our application i.e. decoupling the architecture based on responsibilies.
+Additionally, Kubernetes is an essential part of 
 
-## Use Case
+- Continuous Integration
+- Continuous Delivery
 
-- 🖼️ (Show-Me) Create an graphic or diagram that illustrate the use-case of how this knowledge could be applied to real-world project
-- ✍️ (Show-Me) Explain in one or two sentences the use case
 
-## Cloud Research
 
-- ✍️ Document your trial and errors. Share what you tried to learn and understand about the cloud topic or while completing micro-project.
-- 🖼️ Show as many screenshot as possible so others can experience in your cloud research.
+-**Orchestration tools such as Kubernetes offer:**
 
-## Try yourself
+- High availability
+- Scalability: Applications have higher performance e.g. load time
+- Disaster Recovery: The architecture has to have a way to back-up the data and restore the state of the application at any point in time
 
-✍️ Add a mini tutorial to encourage the reader to get started learning something new about the cloud.
+**How does the architecture actually look like:**
 
-### Step 1 — Summary of Step
+- You have a master node: Runs several Kubernetes processes that are necessary to run the container's processes — e.g. an **API server** ⇒ the entry point to the Kubernetes cluster (UI, API, CLI); then it needs to have a **Controller Manager** ⇒ keeps track of what is happening e.g. detects when a pod dies ⇒ detects state changes; and lastly, it contains a **Scheduler** ⇒ this ensures the Pod placement (more on pods later); **etcd database** ⇒ key-value storage that holds the state of the Kubernetes cluster at any point in time; and the last thing that is needed is the **Virtual Network** that spans across all the nodes in the cluster
+- And worker nodes: contains Containers of different applications; here is where the actual work is happening
 
-![Screenshot](https://via.placeholder.com/500x300)
+Note that worker nodes are usually much bigger because they are running the containers. The master node will only run a selection of processes. 
 
-### Step 1 — Summary of Step
+Each node will have multiple pods with containers running on them. 3 processes have to be present on all nodes
 
-![Screenshot](https://via.placeholder.com/500x300)
+- Container Runtime e.g. Docker
+- Kubelet; which is a process of Kubernetes itself that interacts with both, the container runtime and the node — it is responsible for taking our configuration and starting a pod inside the node
 
-### Step 3 — Summary of Step
+Usually a Kubernetes cluster has several nodes running in parallel.
 
-![Screenshot](https://via.placeholder.com/500x300)
+- nodes communicate with services between each other. Thus, the third process that has to be installed on every node is Kube Proxy that forwards requests between nodes and pods— the communication works in a performant way with low overhead. Requests are forwarded to the closest pod.
 
-## ☁️ Cloud Outcome
+**Kubernetes Concepts — Pods**
 
-✍️ (Result) Describe your personal outcome, and lessons learned.
+Pod ⇒ the smallest unit that you, as a Kubernetes user will configure
 
-## Next Steps
+- Pods are a wrapper of a container; on each worker node, we will have multiple containers
+- Usually, you would have one application, one container per pod
+- Each Pod has its own IP address — thus, each pod is its own self-containing server. This allows pods to communicate with each other — through their internal IP addresses
 
-✍️ Describe what you think you think you want to do next.
+Note that we don't actually create containers inside the Kubernetes cluster but we work with the pods that are an abstraction layer over the containers. Pods manage the containers without our intervention
 
-## Social Proof
+However pods can die very frequently
 
-✍️ Show that you shared your process on Twitter or LinkedIn
+- Whenever a pod dies, it will be recreated and it will get a new IP address
 
-[link](link)
+A service is used as an alternative for a pods IP address. Resulting, there is a service that sits in front of each pod that abstracts away the dynamic IP address. Resulting, the lifecycle of a pod and the IP address are not tied to each other-
+
+If a pod behind the service dies, it gets recreated.
+
+A service has two main functions:
+
+- Providing an IP address to the pod(s)
+- It is a Loadbalancer (what the hack is that 😆 — more on this later)
+
+**How do we create those components**
+
+- All configuration goes through the master node — UI, API, CLI, all talk to the APi server within the master node — they send the configuration request to the API server
+- The configuration is usually in YAML format ⇒ a blue print for creating pods. The Kubernetes agents convert the YAML to JSON prior to persistence to the database.
+- The configuration of the requirements are in a declarative format. This will allow it to compare the desired state to the actual state (more on this later)
+
+**Developer Workflow:**
+
+- Create Docker images based on your application
+- Use Docker and Kubernetes
+- A CI pipeline to build, test, and verify Docker images
+- "You must be able to perform rolling updates and rollbacks, and eventually tear down the resource when no longer needed." — the course
+
+This requires flexible and easy to use network storage.
+
+
+
