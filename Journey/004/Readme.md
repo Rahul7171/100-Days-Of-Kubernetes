@@ -1,94 +1,85 @@
-# Day 3: Looking at Pods
-## Resources
+# Day 4: Looking at Services
 
-- [https://www.vmware.com/topics/glossary/content/kubernetes-pods](https://www.vmware.com/topics/glossary/content/kubernetes-pods)
-- [https://cloud.google.com/kubernetes-engine/docs/concepts/pod](https://cloud.google.com/kubernetes-engine/docs/concepts/pod)
-- [https://kubernetes.io/docs/concepts/workloads/pods/](https://kubernetes.io/docs/concepts/workloads/pods/)
-
-# Pods
+# Services
 
 ---
 
-**Overview**
+**Why do we need services?**
 
-Pods are the smallest unit in a Kubernetes cluster; which encompass one or more application ⇒ it represents processes running on a cluster. Pods are used to manage your application instance.
+Each pod gets its own IP address. However, pods in Kubernetes are **ephemeral**; meaning, they come and go very quickly.
 
-- In our nodes, and within our Kubernetes cluster, the smallest unit that we can work with are pods.
-- Containers are part of a larger object, which is the pod
-- Each container within a pod share an IP address, storage and namespace — each container usually has a distinct role inside the pod
-- Note that pods usually operate on a higher level than containers; there are more of an abstraction of the processes within a container than the container itself
-- A pod can also run multiple containers; all containers are started in parallel ⇒ this makes it difficult to know which process started before another
-- Usually, one pod is used per container process; reasons to run two containers within a pod might be logging purposes
-- *nitContainers* can be used to ensure some 
-containers are ready before others in a pod. To support a single process
- running in a container, you may need logging, a proxy, or special 
-adapter. These tasks are often handled by other containers in the same 
-Pod.
-- Usually each pod has one IP address
-- You may find the term *sidecar* for a container dedicated to 
-performing a helper task, like handling logs and responding to requests,
- as the primary application container may have this ability.
+Every time a new pod is started, it gets its new IP address.
 
-**Running multiple containers in one pod**
+With a service, you get consistent, stable IP address.
 
-An example for running multiple containers within a pod would be an app server pod that contains three separate containers: the app server itself, a monitoring adapter, and a logging adapter. Resulting, all containers combines will provide one service.
+**What is a Service?**
 
-In this case, the logging and monitoring container should be shared across all projects within the organisation.
+With every object and agent decoupled we need a flexible and scalable
+ agent which connects resources together and will reconnect, should 
+something die and a replacement is spawned.
 
-**Replica sets**
+Each service is a microservice that handles a particular bit of traffic. Cluster-internal traffic is handled through cluster IP, we can also have NodeIPs and Loadbalancer.
 
-Each pod is supposed to run a single instance of an application. If you want to scale your application horizontally, you can create multiple instance of that pod.
+Services are a good alternative for loose coupling components within the cluster and with outside resources.
 
-It is usually not recommended to create pods manually but instead use multiple instances of the same application; these are then identical pods, called replicas.
+### Type of Services
 
-Such a set of replicated Pods are created and managed by a controller, such as a Deployment.
+By default Cluster IP is used for the service. 
 
-**Connection**
+Each pod gets a range of IP addresses.
 
-All the pods in a cluster are connected. Pods can communicate through their unique IP address. If there are more containers within one pod, they can communicate over localhost.
+In the case of a replica, the second pod, would have the same internal IP addresses but a different external.
 
-**Pods are not forever**
+A Service is an abstraction layer of an IP address, also accessible on a specific port.
 
-Pods are not "forever"; instead, they easily die in case of machine failure or have to be terminated for machine maintenance. When a pod fails, Kubernetes automatically (unless specified otherwise) spins it up again. 
+**How does a service identify which port to forward the request to?**
 
-It is considered good practice to really only have one process per pods; this allows for easier analysis and debugging.
+A Service identifies pods through selector attributes. In the YAML file for defining the selector; it has a key value part that has to match the key-value pair provided in the deployment. More on this later on.
 
-**Each pod has:**
+These labels can be arbitrary names. Key value pairs that identify a set of pods
 
-- a unique IP address (which allows them to communicate with each other)
-- persistent storage volumes (as required) (more on this later on another day)
-- configuration information that determine how a container should run.
+All the pods that match that key value pair provided by the service are part of the service.
 
-Pod lifecycle
+A Service also handles access policies for inbound requests, useful for resource control, as well as for security.
 
-(copied from Google)
+A service, as well as **kubectl**, uses a *selector* in order to know which objects to connect. There are two selectors currently supported:
 
-Each Pod has a PodStatus API object, which is represented by a Pod's status field. Pods publish their phase to the status: phase field. The phase of a Pod is a high-level summary of the Pod in its current state.
+- **equality-based**Filters by label keys and their values. Three operators can be used, such as **=**, **==**, and **!=**. If multiple values or keys are used, all must be included for a match.
+- **set-based**Filters according to a set of values. The operators are **in**, **notin**, and **exists**. For example, the use of **status notin (dev, test, maint)** would select resources with the key of **status** which did not have a value of **dev**, **test**, nor **maint**.
 
-When you run
-`[kubectl get pod](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#get)` 
-to inspect a Pod running on your cluster, a Pod can be in one of the following
-possible phases:
+**If a pod has multiple ports open, how does the service know which port to forward the requests to?**
 
-- **Pending:** Pod has been created and accepted by the cluster, but one or more
-of its containers are not yet running. This phase includes time spent being
-scheduled on a node and downloading images.
-- **Running:** Pod has been bound to a node, and all of the containers have been
-created. At least one container is running, is in the process of starting, or
-is restarting.
-- **Succeeded:** All containers in the Pod have terminated successfully.
-Terminated Pods do not restart.
-- **Failed:** All containers in the Pod have terminated, and at least one
-container has terminated in failure. A container "fails" if it exits with a
-non-zero status.
-- **Unknown:** The state of the Pod cannot be determined.
+This is defined in the target port attribute provided by the YAML configuration.
 
-**Limits**
+If the service is connected to multiple identical pods, the Service will identify which pod is best equipped to handle the request.
 
-Pods by themselves do not have a memory or CPU limit. However, you can set limits to control the amount of CPU or memory your Pod can use on a node. A limit is the maximum amount of CPU or memory that Kubernetes guarantees to a Pod.
+If we have a microservice within the cluster such as a MongoDB database, our cluster will be able to talk to the database through that respective IP address.
 
-**Termination**
+# Pod-to-Pod Communication
 
-Once the process of the pod is completed, it will terminate. Alternatively, you can also delete a pod.
+---
 
-In case of pod failure, a controller can be used to ensure that the pod is "automatically" healing. In this case, the controlled will monitor the stat of the pod; in case the desired state does not fit the actual state; it will ensure that the actual state is moved back towards the desired state.
+While a CNI plugin can be used to configure the network of a pod and 
+provide a single IP per pod, CNI does not help you with pod-to-pod 
+communication across nodes.
+
+The early requirement from Kubernetes was the following:
+
+- All pods can communicate with each other across nodes.
+- All nodes can communicate with all pods.
+- No Network Address Translation (NAT).
+
+Basically, all IPs involved (nodes and pods) are routable without 
+NAT. This can be achieved at the physical network infrastructure if you 
+have access to it (e.g. GKE). Or, this can be achieved with a software 
+defined overlay with solutions like:
+
+- [Weave](https://www.weave.works/oss/net/)
+- [Flannel](https://coreos.com/flannel/docs/latest/)
+- [Calico](https://www.projectcalico.org/)
+- [Romana](https://romana.io/).
+
+Most network plugins now support the use of Network Policies, which 
+act as an internal firewall, limiting ingress and egress traffic.
+
+For more information see the ["Cluster Networking"](https://kubernetes.io/docs/concepts/cluster-administration/networking/) Documentation page or the list of [networking add-ons](https://kubernetes.io/docs/concepts/cluster-administration/addons/).
