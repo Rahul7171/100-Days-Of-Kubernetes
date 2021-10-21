@@ -1,52 +1,82 @@
-**Add a cover photo like:**
-![placeholder image](https://via.placeholder.com/1200x600)
+# Day 5: setting up your Kubernetes cluster
 
-# New post title here
+**Chapter 1** provides an introduction to Kubernetes; I will use it to optimise the notes from he previous day.
 
-## Introduction
+**Chapter 2** provides a walkthrough on how to set-up a local Kubernetes cluster using minikube or microk8s. Alternatively, [kind](https://kind.sigs.k8s.io/docs/user/quick-start/) could also be used to create a local Kubernetes cluster.
 
-✍️ (Why) Explain in one or two sentences why you choose to do this project or cloud topic for your day's study.
+Prerequisites
 
-## Prerequisite
+1. Have Docker isntalled (if not go ahead and do it): [https://docs.docker.com/](https://docs.docker.com/)
+2. Install kubectl 
 
-✍️ (What) Explain in one or two sentences the base knowledge a reader would need before describing the the details of the cloud service or topic.
+**Here is how to install kubectl**
 
-## Use Case
+If you have the Homebrew package manager installed, you can use that:
 
-- 🖼️ (Show-Me) Create an graphic or diagram that illustrate the use-case of how this knowledge could be applied to real-world project
-- ✍️ (Show-Me) Explain in one or two sentences the use case
+```jsx
+brew install kubectl
+```
 
-## Cloud Research
+On Linux, the commands are going to be:
 
-- ✍️ Document your trial and errors. Share what you tried to learn and understand about the cloud topic or while completing micro-project.
-- 🖼️ Show as many screenshot as possible so others can experience in your cloud research.
+```jsx
+curl -LO [https://storage.googleapis.com/kubernetes-release/release/$](https://storage.googleapis.com/kubernetes-release/release/$)(curl -s https:/\
+/storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubec\
+tl
 
-## Try yourself
+chmod +x ./kubectl
 
-✍️ Add a mini tutorial to encourage the reader to get started learning something new about the cloud.
+sudo mv ./kubectl /usr/local/bin/kubectl
+```
 
-### Step 1 — Summary of Step
+To make sure you have kubectl installed, you can run 
 
-![Screenshot](https://via.placeholder.com/500x300)
+```jsx
+kubectl version --output=yaml
+```
 
-### Step 1 — Summary of Step
+**Install local cluster**
 
-![Screenshot](https://via.placeholder.com/500x300)
+To install minikube, you require a virtualisation technology such as VirtualBox. If you are on windows, you might want to use hyperv instead. Minikube provides a single node instance that you can use in combination with kubectl.
 
-### Step 3 — Summary of Step
+It supports DNS, Dashboards, CNI, NodePorts, Config Maps, etc. It also supports multiple hypervisors, such as Virtualbox, kvm, etc.
 
-![Screenshot](https://via.placeholder.com/500x300)
+In my case I am going to be using [microk8s](https://microk8s.io/) since I had several issues getting started with minikube. However, please don't let this put you off. Please look for yourself into each tool and decide which one you like the best.
 
-## ☁️ Cloud Outcome
+Mikrok8s provides a lightweight Kubernetes installation on your local machine. Overall, it is much easier to install on Linux using snap since it does not require any virtualization tools. 
 
-✍️ (Result) Describe your personal outcome, and lessons learned.
+```jsx
+sudo snap install microk8s --classic
+```
 
-## Next Steps
+However, also the Windows and Mac installation are quite straightforward so have a look at those on their website.
 
-✍️ Describe what you think you think you want to do next.
+Make sure that kubectl has access directly to your 
 
-## Social Proof
+If you have multiple clusters configured, you can switch between them using your kubectl commands
 
-✍️ Show that you shared your process on Twitter or LinkedIn
+To show the different clusters available:
 
-[link](link)
+```jsx
+kubectl config get-contexts
+```
+
+to switch to a different cluster:
+
+```jsx
+kubectl config use-context <name of the context>
+```
+
+Once we are connected to the right cluster, we can ask kubectl to show us our nodes
+
+```jsx
+kubectl get nodes
+```
+
+Or you could see the current pods that are running on your cluster — if it is a new cluster, you likely don't have any pods running.
+
+```jsx
+kubectl get pods
+```
+
+In the case of minikube and microk8s, we have only one node
