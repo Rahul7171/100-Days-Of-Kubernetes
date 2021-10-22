@@ -1,52 +1,156 @@
-**Add a cover photo like:**
-![placeholder image](https://via.placeholder.com/1200x600)
+# Day 6: Running pods
+Fork the following repository: [https://github.com/vfarcic/k8s-specs](https://github.com/vfarcic/k8s-specs)
 
-# New post title here
+```jsx
+git clone https://github.com/vfarcic/k8s-specs.git
 
-## Introduction
+cd k8s-specs
+```
 
-✍️ (Why) Explain in one or two sentences why you choose to do this project or cloud topic for your day's study.
+Create a mongo DB database 
 
-## Prerequisite
+```jsx
+kubectl run db --image mongo \
+--generator "run-pod/v1"
+```
 
-✍️ (What) Explain in one or two sentences the base knowledge a reader would need before describing the the details of the cloud service or topic.
+If you want to confirm that the pod was created do: kubectl get pods
 
-## Use Case
+Note that if you do not see any output right away that is ok; the mongo image is really big so it might take a while to get the pod up and running.
 
-- 🖼️ (Show-Me) Create an graphic or diagram that illustrate the use-case of how this knowledge could be applied to real-world project
-- ✍️ (Show-Me) Explain in one or two sentences the use case
+Confirm that the image is running in the cluster
 
-## Cloud Research
+```jsx
+docker container ls -f ancestor=mongo
+```
 
-- ✍️ Document your trial and errors. Share what you tried to learn and understand about the cloud topic or while completing micro-project.
-- 🖼️ Show as many screenshot as possible so others can experience in your cloud research.
+To delete the pod run
 
-## Try yourself
+```jsx
+kubectl delete pod db
+```
 
-✍️ Add a mini tutorial to encourage the reader to get started learning something new about the cloud.
+Delete the pod above since it was not the best way to run the pod.
 
-### Step 1 — Summary of Step
+- Pods should be created in a declarative format. However, in this case, we created it in an imperative way — BAD!
 
-![Screenshot](https://via.placeholder.com/500x300)
+To look at the pod definition:
 
-### Step 1 — Summary of Step
+```jsx
+cat pod/db.yml
+```
 
-![Screenshot](https://via.placeholder.com/500x300)
+```jsx
+apiVersion: v1 // means the version 1 of the Kubernetes pod API; API version and kind has to be provided -- it is mandatory
+kind: Pod
+metadata: // the metadata provides information on the pod, it does not specifiy how the pod behaves
+name: db
+labels:
+type: db
+vendor: MongoLabs // I assume, who has created the image
+spec:
+containers:
+- name: db
+image: mongo:3.3 // image name and tag
+command: ["mongod"]
+args: ["--rest", "--httpinterface"] // arguments, defined in an array
+```
 
-### Step 3 — Summary of Step
+In the case of controllers, the information provided in the metadata has a practical purpose. However, in this case, it merely provides descriptive information.
 
-![Screenshot](https://via.placeholder.com/500x300)
+All arguments that can be used in pods are defined in [https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.17/#pod-v1-core](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.17/#pod-v1-core)
 
-## ☁️ Cloud Outcome
+With the following command, we can create a pod that is defined in the pod.yml file 
 
-✍️ (Result) Describe your personal outcome, and lessons learned.
+```jsx
+kubectl create -f pod/db.yml
+```
 
-## Next Steps
+to view the pods (in json format)
 
-✍️ Describe what you think you think you want to do next.
+```jsx
+kubectl get pods -o json
+```
 
-## Social Proof
+We can see that the pod went through several stages (stages detailed in the video on pods)
 
-✍️ Show that you shared your process on Twitter or LinkedIn
+In the case of microk8s, both master and worker nodes run on the same machine.
 
-[link](link)
+To verify that the database is running, we can go ahead an run
+
+```jsx
+kubectl exec -it db sh // this will start a terminal inside the running container
+echo 'db.stats()'
+exit
+```
+
+Once we do not need a pod anymore, we should delete it
+
+```jsx
+kubectl delete -f pod/db.yml
+```
+
+- Kubernetes will first try to stop a pod gracefully; it will have 30s to shut down.
+- After the "grace period" a kill signal is sent
+
+Additional notes
+
+- Pods cannot be split across nodes
+- Storage within a pod (volumes) can be accessed by all the containers within a pod
+
+### Run multiple containers with in a pod
+
+Most pods should be made of a single container; multiple containers within one pod is not common nor necessarily desirable 
+
+Look at 
+
+```jsx
+cat pod/go-demo-2.yml
+```
+
+of the closed repository (the one cloned at the beginning of these notes)
+
+The yml defines the use of two containers within one pod
+
+```jsx
+kubectl create -f pod/go-demo-2.yml
+
+kubectl get -f pod/go-demo-2.yml
+```
+
+To only retrieve the names of the containers running in the pod
+
+```jsx
+kubectl get -f pod/go-demo-2.yml \
+-o jsonpath="{.spec.containers[*].name}"
+```
+
+Specify the name of the container for which we want to have the logs
+
+```jsx
+kubectl logs go-demo-2 -c db
+```
+
+- livenessProbes are used to check whether a container should be running
+
+Have a look at 
+
+```jsx
+cat pod/go-demo-2-health.yml
+```
+
+within the cloned repository.
+
+Create the pod
+
+```jsx
+kubectl create \
+-f pod/go-demo-2-health.yml
+```
+
+wait a minute and look at the output
+
+```jsx
+kubectl describe \
+-f pod/go-demo-2-health.yml
+```
