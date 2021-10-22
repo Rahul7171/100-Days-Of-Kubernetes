@@ -26,7 +26,7 @@ I have heard many great things about your esteemed organization and I am sure I�
 - [ ] ☁️ 3 > [My Third Day](Journey/003/Readme.md)
 - [ ] ☁️ 4 > [MY Fourth Day](Journey/004/Readme.md)
 - [ ] ☁️ 5 > [My Fifth Day](Journey/005/Readme.md)
-- [ ] ☁️ 6 > [](Journey/006/Readme.md)
+- [ ] ☁️ 6 > [My Sixth Day](Journey/006/Readme.md)
 - [ ] ☁️ 7 > [](Journey/007/Readme.md)
 - [ ] ☁️ 8 > [](Journey/008/Readme.md)
 - [ ] ☁️ 9 > [](Journey/009/Readme.md)
