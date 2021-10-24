@@ -1,52 +1,88 @@
-**Add a cover photo like:**
-![placeholder image](https://via.placeholder.com/1200x600)
+# Day 8: Kubernetes ReplicaSet
+**ReplicaSets**
 
-# New post title here
+A ReplicaSet ensures that a certain number of pods are running at any point in time.If there are more pods running, the ReplicaSet will kill the pods.
 
-## Introduction
+Additionally, if any pod dies and the total number of pods is fewer than the defined number of pods, the ReplicaSet will spin up more pods.
 
-✍️ (Why) Explain in one or two sentences why you choose to do this project or cloud topic for your day's study.
+Each pod is supposed to run a single instance of an application. If you want to scale your application horizontally, you can create multiple instances of that pod.
 
-## Prerequisite
+The pod ReplicaSet is used for scaling pods in your Kubernetes cluster.
 
-✍️ (What) Explain in one or two sentences the base knowledge a reader would need before describing the the details of the cloud service or topic.
+It is usually not recommended to create pods manually but instead use multiple instances of the same application; these are then identical pods, called replicas.
 
-## Use Case
+**Such a set of replicated Pods are created and managed by a controller, such as a Deployment.**
 
-- 🖼️ (Show-Me) Create an graphic or diagram that illustrate the use-case of how this knowledge could be applied to real-world project
-- ✍️ (Show-Me) Explain in one or two sentences the use case
+As long as the primary conditions are met: enough CPU and memory is available in the cluster, the ReplicaSet is self-healing; it provides fault tolerance and high availibility.
 
-## Cloud Research
+It's only purpose is to ensure that the specified number of replicas of a service is running.
 
-- ✍️ Document your trial and errors. Share what you tried to learn and understand about the cloud topic or while completing micro-project.
-- 🖼️ Show as many screenshot as possible so others can experience in your cloud research.
+All pods are managed through Controllers and Services. They know about the pods that they have to manage through the in-yaml defined Labels within the pods and the selectors within the Controllers/Services. Remember the metadata field from one of the previous days — in the case of ReplicaSets, these labels are used again.
 
-## Try yourself
+Clone the repository
 
-✍️ Add a mini tutorial to encourage the reader to get started learning something new about the cloud.
+enter into the root folder
 
-### Step 1 — Summary of Step
+```jsx
+cd k8s-specs
+```
 
-![Screenshot](https://via.placeholder.com/500x300)
+Looking at the following example
 
-### Step 1 — Summary of Step
+```jsx
+cat rs/go-demo-2.yml
+```
 
-![Screenshot](https://via.placeholder.com/500x300)
+- The selector is used to specify which pods should be included in the replicaset
+- ReplicaSets and Pods are decoupled
+- If the pods that match the replicaset, it does not have to do anything
+- Similar to how the ReplicaSet would scale pods to match the definition provided in the yaml, it will also terminate pods if there are too many
+- the spec.template.spec defines the pod
 
-### Step 3 — Summary of Step
+Next, create the pods
 
-![Screenshot](https://via.placeholder.com/500x300)
+```jsx
+kubectl create -f rs/go-demo-2.yml
+```
 
-## ☁️ Cloud Outcome
+We can see further details of your running pods through the kubectl describe command
 
-✍️ (Result) Describe your personal outcome, and lessons learned.
+```jsx
+kubectl describe -f rs/go-demo-2.yml
+```
 
-## Next Steps
+To list all the pods, and to compare the labels specified in the pods match the ReplicaSet
 
-✍️ Describe what you think you think you want to do next.
+```jsx
+kubectl get pods --show-labels
+```
 
-## Social Proof
+You can call the number of replicasets by running
 
-✍️ Show that you shared your process on Twitter or LinkedIn
+```jsx
+kubectl get replicasets
+```
 
-[link](link)
+ReplicaSets are named using the same naming convention as used for pods.
+
+### Difference between ReplicaSet and Replication Controller
+
+They both serve the same purpose — the Replication Controller is being deprecated.
+
+### Operating ReplicaSets
+
+You can delete a ReplicaSet without deleting the pods that have been created by the replicaset
+
+```jsx
+kubectl delete -f rs/go-demo-2.yml \
+--cascade=false
+```
+
+And then the ReplicaSet can be created again
+
+```jsx
+kubectl create -f rs/go-demo-2.yml \
+--save-config
+```
+
+the —save-config flag ensures that our configurations are saved, which allows us to do more specific tasks later on.
