@@ -1,52 +1,116 @@
-**Add a cover photo like:**
-![placeholder image](https://via.placeholder.com/1200x600)
+# Day 10: Hands-On Deployment
+Then we will create a deployment
 
-# New post title here
+```jsx
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-application
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      run: react-application
+  template:
+    metadata:
+      labels:
+        run: react-application
+    spec:
+      containers:
+      - name: react-application
+        image: anaisurlichs/react-article-display:master
+        ports:
+          - containerPort: 80
+        imagePullPolicy: Always
+```
 
-## Introduction
+More information on Kubernetes deployments
 
-✍️ (Why) Explain in one or two sentences why you choose to do this project or cloud topic for your day's study.
+- A deployment is a Kubernetes object that makes it possible to manage multiple, identical pods
+- Using deployments, it is possible to automate the process of creating, modifying and deleting pods — it basically manages the lifecycle of your application
+- Whenever a new object is created, Kubernetes will ensure that this object exist
+- If you try to set-up pods manually, it can lead to human error, using deployments
+- The difference between a deployment and a service is that a deployment ensures that a set of pods keeps running by creating pods and replacing broken prods with the resource defined in the template. In comparison, a service is used to allow a network to access the running pods.
 
-## Prerequisite
+[deployments allow you to](https://www.redhat.com/en/topics/containers/what-is-kubernetes-deployment)
 
-✍️ (What) Explain in one or two sentences the base knowledge a reader would need before describing the the details of the cloud service or topic.
+- Deploy a replica set or pod
+- Update pods and replica sets
+- Rollback to previous deployment versions
+- Scale a deployment
+- Pause or continue a deployment
 
-## Use Case
+Create deployment
 
-- 🖼️ (Show-Me) Create an graphic or diagram that illustrate the use-case of how this knowledge could be applied to real-world project
-- ✍️ (Show-Me) Explain in one or two sentences the use case
+```jsx
+kubectl create -f deployment.yaml
+```
 
-## Cloud Research
+Access more information on the deployment 
 
-- ✍️ Document your trial and errors. Share what you tried to learn and understand about the cloud topic or while completing micro-project.
-- 🖼️ Show as many screenshot as possible so others can experience in your cloud research.
+```jsx
+kubectl describe deployment <deployment name>
+```
 
-## Try yourself
+Create the service yml
 
-✍️ Add a mini tutorial to encourage the reader to get started learning something new about the cloud.
+```jsx
+apiVersion: v1
+kind: Service
+metadata:
+  name: react-application
+  labels:
+    run: react-application
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    targetPort: 80
+    protocol: TCP
+    name: http
+  selector:
+    run: react-application
+```
 
-### Step 1 — Summary of Step
+Creating the service with kubectl expose
 
-![Screenshot](https://via.placeholder.com/500x300)
+```jsx
+kubectl expose deployment/my-nginx
+```
 
-### Step 1 — Summary of Step
+This will create a service that is highly similar to our in yaml defined service. However, if we want to create the service based on our yaml instead, we can run:
 
-![Screenshot](https://via.placeholder.com/500x300)
+```jsx
+kubectl create -f my-pod-service.yml
+```
 
-### Step 3 — Summary of Step
+### How is the Service and the Deployment linked?
 
-![Screenshot](https://via.placeholder.com/500x300)
+The targetPort in the service yaml links to the container port in the deployment. Thus, both have to be, for example, 80. 
 
-## ☁️ Cloud Outcome
+We can then create the deployment and service based on the yaml, when you look for "kubectl get service", you will see the created service including the Cluster-IP. Take that cluster IP and the port that you have defined in the service e.g. 10.152.183.79:8080 basically <Cluster IP>:<port defined in service> and you should be able to access the application through NodePort. However, note that anyone will be able to access this connection. You should be deleting these resources afterwards.
 
-✍️ (Result) Describe your personal outcome, and lessons learned.
+```jsx
+kubectl get service
+```
 
-## Next Steps
+![https://s3-us-west-2.amazonaws.com/secure.notion-static.com/3f2ba295-c81d-4836-8b46-eadbc70b2eb7/Screenshot_from_2021-01-06_21-54-40.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/3f2ba295-c81d-4836-8b46-eadbc70b2eb7/Screenshot_from_2021-01-06_21-54-40.png)
 
-✍️ Describe what you think you think you want to do next.
+Alternatively, for more information of the service
 
-## Social Proof
+```jsx
+kubectl get svc <service name> -o yaml
+```
 
-✍️ Show that you shared your process on Twitter or LinkedIn
+-o yaml: the data should be displayed in yaml format
 
-[link](link)
+Delete the resources by
+
+```jsx
+kubectl delete service react-application
+kubectl delete deployment react-application
+
+// in this case, your pods are still running, so you would have to remove them individually 
+```
+
+Note: replace react-application with the name of your service.
