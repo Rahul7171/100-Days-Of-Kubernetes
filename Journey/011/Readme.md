@@ -1,52 +1,135 @@
-**Add a cover photo like:**
-![placeholder image](https://via.placeholder.com/1200x600)
+# Day 11 k9s
+## What is k9s?
 
-# New post title here
+K9s is a terminal-based tool that visualises the resources within your cluster and the connection between those. It helps you to access, observe, and manage your resources. "K9s continually watches Kubernetes for changes and offers subsequent commands to interact with your observed resources." — Taken from their GitHub repository
 
-## Introduction
+**Installation options:**
 
-✍️ (Why) Explain in one or two sentences why you choose to do this project or cloud topic for your day's study.
+- Homebrew MacOS and Linux
+- OpenSUSE
+- Arch Linux
+- Chocolatey for Windows
+- Install via Go
+- Install from source
+- Run from Docker container
 
-## Prerequisite
+As you can see there are multiple different options and I am sure you will find the right one for you and your OS.
 
-✍️ (What) Explain in one or two sentences the base knowledge a reader would need before describing the the details of the cloud service or topic.
+**Some additional features:**
 
-## Use Case
+1. Customise the color settings
+2. [Key Bindings](https://github.com/derailed/k9s#key-bindings)
+3. Node Shell
+4. Command Aliases
+5. HotKeySpport
+6. Resource Custom Columns
+7. Plugins
+8. Benchmark your Application
 
-- 🖼️ (Show-Me) Create an graphic or diagram that illustrate the use-case of how this knowledge could be applied to real-world project
-- ✍️ (Show-Me) Explain in one or two sentences the use case
+Have a look at their website for more comprehensive information
 
-## Cloud Research
+## Getting up and running
 
-- ✍️ Document your trial and errors. Share what you tried to learn and understand about the cloud topic or while completing micro-project.
-- 🖼️ Show as many screenshot as possible so others can experience in your cloud research.
+The configuration for K9s is kept in your home directory under .k9s $HOME/.k9s/config.yml.
 
-## Try yourself
+You can find a detailed explanation on what the file is here: [https://k9scli.io/topics/config/](https://k9scli.io/topics/config/)
 
-✍️ Add a mini tutorial to encourage the reader to get started learning something new about the cloud.
+Note that the definitions may change over time with new releases.
 
-### Step 1 — Summary of Step
+To enter the K9s, just type k9s into your terminal.
 
-![Screenshot](https://via.placeholder.com/500x300)
+Show everything that you can do with K9s, just type
 
-### Step 1 — Summary of Step
+```jsx
+?
+```
 
-![Screenshot](https://via.placeholder.com/500x300)
+Or press:
 
-### Step 3 — Summary of Step
+```jsx
+ctrl-a
+```
 
-![Screenshot](https://via.placeholder.com/500x300)
+Which will show a more comprehensive list.
 
-## ☁️ Cloud Outcome
+Search for specific resources type
 
-✍️ (Result) Describe your personal outcome, and lessons learned.
+```jsx
+:<name>
+```
 
-## Next Steps
+The name could for instance refer to "pods", "nodes", "rs" (for ReplicaSet) and other Kubernetes resources that you have already been using. Once you have selected a resource, for instance, a namespace, you can search for specific namespaces using "/"
 
-✍️ Describe what you think you think you want to do next.
+Have a look at deployments
 
-## Social Proof
+```jsx
+:dp
+```
 
-✍️ Show that you shared your process on Twitter or LinkedIn
+To switch between your Kubernetes context type:
 
-[link](link)
+```jsx
+:ctx
+```
+
+You can also add the context name after the command if you want to view your Kubernetes context and then switch.
+
+To delete a resource type press: ctrl-d
+
+To kill a resource, use the same command but with k: ctrl-k
+
+Change how resourc4es are displayed:
+
+```jsx
+:xray RESOURCE
+```
+
+To exist K9s either type 
+
+```jsx
+:q
+```
+
+Or press: ctrl-c
+
+## k9s interaction with Kubernetes
+
+If you are changing the context or the namespace with kubectl, k9s will automatically know about it and show you the resources within the namespace.
+
+Alternatively, you can also specify the namespace through K9s like detailed above.
+
+## k9s for further debugging and benchmarking
+
+K9s integrates with Hey, which is a CLI tool used to benchmark HTTP endpoints. It currently supports benchmarking port-forwards and services ([Source](https://k9scli.io/topics/bench/))
+
+To port forward, you will need to selects a pod and container that exposes a specific port within the PodView. 
+
+With SHIFT-F a dialog will pop up and allows you to select the port to forward to.
+
+Once you have selected that, you can use 
+
+```jsx
+:pf
+```
+
+to navigate to the PortForward view and list out all active port-forward.
+
+Selecting port-forward + using CTRL-B will run a benchmark on that http endpoint.
+
+You can then view the results of the benchmark through
+
+```jsx
+:be
+```
+
+Keep in mind that once you exit the K9s session, the port-forward will be removed, forwards only last for the duration of the session.
+
+Each cluster has its own bench-config that can be found at $HOME/.k9s/bench-<my_context>.yml
+
+You can find further information [here](https://k9scli.io/topics/bench/).
+
+You can debug processes using
+
+```jsx
+k9s -l debug
+```
