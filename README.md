@@ -35,7 +35,7 @@ I have heard many great things about your esteemed organization and I am sure I�
 ## Walking down the road
 
 - [ ] ☁️ 11 > [My Eleventh Day](Journey/011/Readme.md)
-- [ ] ☁️ 12 > [](Journey/012/Readme.md)
+- [ ] ☁️ 12 > [My 12th Day](Journey/012/Readme.md)
 - [ ] ☁️ 13 > [](Journey/013/Readme.md)
 - [ ] ☁️ 14 > [](Journey/014/Readme.md)
 - [ ] ☁️ 15 > [](Journey/015/Readme.md)
