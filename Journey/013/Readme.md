@@ -1,52 +1,116 @@
-**Add a cover photo like:**
-![placeholder image](https://via.placeholder.com/1200x600)
+# Day 13 : Kubernetes Volumes
+We cannot store data within our containers — if our pod crashes and restarts another container based on that container image, all of our state will be lost. **Kubernetes does not give you data-persistence out of the box.**
 
-# New post title here
+**Volumes are references to files and directories** made accessible to containers that form a pod. So, they basically keep track of the state of your application and if one pod dies the next pod will have access to the Volume and thus, the previously recorded state.
 
-## Introduction
+There are over 25 different Volume types within Kubernetes — some of which are specific to hosting providers e.g. AWS
 
-✍️ (Why) Explain in one or two sentences why you choose to do this project or cloud topic for your day's study.
+The difference between volumes is the way that files and  directories are created.
 
-## Prerequisite
+Additionally, Volumes can also be used to access other Kubernetes resources such as to access the Docker socket.
 
-✍️ (What) Explain in one or two sentences the base knowledge a reader would need before describing the the details of the cloud service or topic.
+The problem is that the storage has to be available across all nodes. When a pod fails and is restarted, it might be started on a different node.
 
-## Use Case
+Overall, Kubernetes Volumes have to be highly error-resistant — and even survive a crash of the entire cluster.
 
-- 🖼️ (Show-Me) Create an graphic or diagram that illustrate the use-case of how this knowledge could be applied to real-world project
-- ✍️ (Show-Me) Explain in one or two sentences the use case
+Volumes and Persistent Volumes are created like other Kubernetes resources, through YAML files.
 
-## Cloud Research
+Additionally, we can differentiate between **remote and local volumes** — each volume type has its own use case. 
 
-- ✍️ Document your trial and errors. Share what you tried to learn and understand about the cloud topic or while completing micro-project.
-- 🖼️ Show as many screenshot as possible so others can experience in your cloud research.
+Local volumes are tied to a specific node and do not survive cluster disasters. Thus, you want to use remote volumes whenever possible.
 
-## Try yourself
+```jsx
+apiVersion: v1
+kind: Pod
+metadata:
+  name: empty-dir
+spec:
+  containers:
+    - name: busybox-a
+      command: ['tail', '-f', '/dev/null']
+      image: busybox
+      volumeMounts:
+        - name: cache
+          mountPath: /cache
+    - name: busybox-b
+      command: ['tail', '-f', '/dev/null']
+      image: busybox
+      volumeMounts:
+        - name: cache
+          mountPath: /cache
+  volumes:
+    - name: cache
+      emptyDir: {}
+```
 
-✍️ Add a mini tutorial to encourage the reader to get started learning something new about the cloud.
+Create the resource:
 
-### Step 1 — Summary of Step
+```
+kubectl apply -f empty-dir
+```
 
-![Screenshot](https://via.placeholder.com/500x300)
+Write to the file:
 
-### Step 1 — Summary of Step
+```
+kubectl exec empty-dir --container busybox-a -- sh -c "echo \"Hello World\" > /cache/hello.txt"
+```
 
-![Screenshot](https://via.placeholder.com/500x300)
+Read what is within the file
 
-### Step 3 — Summary of Step
+```
+kubectl exec empty-dir --container busybox-b -- cat /cache/hello.txt
+```
 
-![Screenshot](https://via.placeholder.com/500x300)
+However, to ensure that the data will be saved beyond the creation and deletion of pods, we need Persistent volumes. Ephemeral volume types only have the lifetime of a pod — thus, they are not of much use if the pod crashes.
 
-## ☁️ Cloud Outcome
+A persistent volume will have to take the same storage as the physical storage. 
 
-✍️ (Result) Describe your personal outcome, and lessons learned.
+Storage in Kubernetes is an external plug-in to our cluster. This way, you can also have multiple different storage resources. 
 
-## Next Steps
+The storage resources is defined within the PersistentVolume YAML
 
-✍️ Describe what you think you think you want to do next.
+A hostPath volume mounts a file or directory from the host node’s 
+filesystem into your Pod. This is not something that most Pods will 
+need, but it offers a powerful escape hatch for some applications.
 
-## Social Proof
+*— Kubernetes — [Volumes](https://kubernetes.io/docs/concepts/storage/volumes/)*
 
-✍️ Show that you shared your process on Twitter or LinkedIn
+```jsx
+apiVersion: v1
+kind: Pod
+metadata:
+  name: host-path
+spec:
+  containers:
+    - name: busybox
+      command: ['tail', '-f', '/dev/null']
+      image: busybox
+      volumeMounts:
+        - name: data
+          mountPath: /data
+  volumes:
+  - name: data
+    hostPath:
+      path: /data
+```
 
-[link](link)
+Create the volume
+
+```jsx
+kubectl apply -f empty-dir
+```
+
+Read from the volume
+
+```jsx
+kubectl exec host-path -- cat /data/hello.txt
+```
+
+## Resources used:
+
+- [https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/](https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/)
+- [https://codeburst.io/kubernetes-storage-by-example-part-1-27f44ae8fb8b](https://codeburst.io/kubernetes-storage-by-example-part-1-27f44ae8fb8b)
+- [https://youtu.be/0swOh5C3OVM](https://youtu.be/0swOh5C3OVM)
+- The chapter on Volumes from the book
+
+[https://www.notion.so/researchandstudy/100DaysOfKubernetes-0c1e0de84d654e59bdf89242195abb22#61ff3e00dd2c4669aa7ae4e988c70915](https://devops.anaisurl.com/100DaysOfKubernetes-0c1e0de84d654e59bdf89242195abb22)
