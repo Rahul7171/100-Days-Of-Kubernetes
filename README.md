@@ -67,8 +67,6 @@ Here are the levels of learning for Stage 1, along with some resources to help y
         * \[JavaScript Arrays\]([**https://www.w3school**](https://www.w3school)
             
 
-![DEXTER UNIVERSE](https://chat.openai.com/_next/image?url=https%3A%2F%2Flh3.googleusercontent.com%2Fa%2FAEdFTp4fDxKONoTM0hUeC5ZxFlMzz-ZvBAiFYTiAOA1p%3Ds96-c&w=64&q=75 align="left")
-
 ## **Stage 2: Back-End Development**
 
 In this stage, you'll focus on learning the back-end technologies that are used to build the server-side of a web application. This will involve learning a server-side language such as Python or Ruby, and a database technology such as MySQL.
